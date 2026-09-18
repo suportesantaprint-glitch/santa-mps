@@ -1,0 +1,6 @@
+{
+  "name": "Santa MPS - Gestão e Monitoramento de Outsourcing de Impressão",
+  "description": "Sistema completo de gestão, monitoramento, contadores, suprimentos, contratos, faturamento, chamados e ordens de serviço para outsourcing de impressão.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
