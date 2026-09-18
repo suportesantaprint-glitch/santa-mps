@@ -17,70 +17,50 @@ jobs:
   validate:
     name: Validate Next.js MVP
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node.js 22
         uses: actions/setup-node@v5
         with:
           node-version: 22.x
           cache: npm
           cache-dependency-path: package.json
-
       - name: Validate package.json
         run: |
           test -f package.json || {
             echo "::error::package.json não encontrado."
             exit 1
           }
-
           node <<'NODE'
           const fs = require('fs');
           const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
           const scripts = pkg.scripts || {};
-
           if (!pkg.name) throw new Error('package.json precisa de "name".');
           if (!pkg.version) throw new Error('package.json precisa de "version".');
-          if (!pkg.dependencies?.next && !pkg.devDependencies?.next) {
-            throw new Error('Next.js não encontrado nas dependências.');
-          }
-
+          if (!pkg.dependencies?.next && !pkg.devDependencies?.next) throw new Error('Next.js não encontrado nas dependências.');
           const required = ['lint', 'typecheck', 'test', 'build', 'e2e'];
           const missing = required.filter((name) => !scripts[name]);
-
-          if (missing.length) {
-            throw new Error('Scripts ausentes: ' + missing.join(', '));
-          }
-
+          if (missing.length) throw new Error('Scripts ausentes: ' + missing.join(', '));
           console.log('✓ package.json válido');
           console.log('✓ Next.js:', pkg.dependencies?.next || pkg.devDependencies?.next);
           console.log('✓ Scripts:', required.join(', '));
           NODE
-
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
+        run: npm install --no-audit --no-fund --package-lock=false
       - name: Check dependency vulnerabilities
         run: npm audit --audit-level=high
-
       - name: Lint
         run: npm run lint
-
       - name: TypeScript typecheck
         run: npm run typecheck
-
       - name: Unit tests
         run: npm test -- --runInBand
-
       - name: Production build
         run: npm run build
-
       - name: E2E tests
         run: npm run e2e
         env:
           CI: true
-
       - name: Check Git diff
         run: git diff --exit-code
