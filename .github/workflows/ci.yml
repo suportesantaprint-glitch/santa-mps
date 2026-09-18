@@ -20,18 +20,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node.js 22
         uses: actions/setup-node@v5
         with:
           node-version: 22.x
           cache: npm
           cache-dependency-path: package.json
+
       - name: Validate package.json
         run: |
           test -f package.json || {
             echo "::error::package.json não encontrado."
             exit 1
           }
+
           node <<'NODE'
           const fs = require('fs');
           const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
@@ -46,21 +49,32 @@ jobs:
           console.log('✓ Next.js:', pkg.dependencies?.next || pkg.devDependencies?.next);
           console.log('✓ Scripts:', required.join(', '));
           NODE
+
       - name: Install dependencies
-        run: npm install --no-audit --no-fund --package-lock=false
+        run: npm install --no-audit --no-fund
+
       - name: Check dependency vulnerabilities
         run: npm audit --audit-level=high
+
       - name: Lint
         run: npm run lint
+
       - name: TypeScript typecheck
         run: npm run typecheck
+
       - name: Unit tests
         run: npm test -- --runInBand
+
       - name: Production build
         run: npm run build
+
       - name: E2E tests
         run: npm run e2e
         env:
           CI: true
+
+      - name: Remove generated lockfile
+        run: rm -f package-lock.json
+
       - name: Check Git diff
         run: git diff --exit-code
