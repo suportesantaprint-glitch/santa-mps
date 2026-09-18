@@ -1,0 +1,91 @@
+name: CI - Santa MPS
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Next.js MVP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Check project files
+        run: |
+          test -f package.json || {
+            echo "::error::package.json não encontrado."
+            echo "Adicione o projeto Next.js antes de executar a CI."
+            exit 1
+          }
+
+          test -f package-lock.json || {
+            echo "::error::package-lock.json não encontrado."
+            echo "Gere o lockfile com: npm install"
+            exit 1
+          }
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate package metadata
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+          if (!pkg.name) throw new Error('package.json precisa de "name".');
+          if (!pkg.version) throw new Error('package.json precisa de "version".');
+
+          const scripts = pkg.scripts || {};
+          const required = ['lint', 'typecheck', 'test', 'build'];
+          const missing = required.filter((name) => !scripts[name]);
+
+          if (missing.length) {
+            throw new Error(
+              'Scripts obrigatórios ausentes no package.json: ' + missing.join(', ')
+            );
+          }
+
+          if (!pkg.dependencies?.next && !pkg.devDependencies?.next) {
+            throw new Error('Next.js não encontrado nas dependências.');
+          }
+
+          console.log('package.json validado.');
+          console.log('Next.js:', pkg.dependencies?.next || pkg.devDependencies?.next);
+          NODE
+
+      - name: Check dependency vulnerabilities
+        run: npm audit --audit-level=high
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TypeScript typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test -- --runInBand
+
+      - name: Production build
+        run: npm run build
+
+      - name: Check Git diff
+        run: git diff --exit-code
