@@ -1,0 +1,373 @@
+{
+  "info": {
+    "name": "Santa MPS - API REST v1 Collection",
+    "description": "Suite de testes de contrato e integração HTTP para as APIs REST do Santa MPS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Agentes - Heartbeat",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"agent_id\": \"agt-newman-01\",\n  \"hostname\": \"SRV-PRINT-HMP\",\n  \"version\": \"2.4.1\",\n  \"ip\": \"192.168.1.100\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/agentes/heartbeat",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "agentes", "heartbeat"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Payload é JSON com success=true', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.data.status).to.eql('ACKNOWLEDGED'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Agentes - Telemetria e Leituras SNMP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"agent_id\": \"agt-newman-01\",\n  \"batch\": [\n    {\n      \"printer_ip\": \"192.168.1.50\",\n      \"serial\": \"PRT-ECOSYS-999\",\n      \"counter_total\": 124500\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/agentes/readings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "agentes", "readings"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Lote processado com sucesso', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.total_received).to.eql(1); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Clientes - Listar Clientes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/clientes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "clientes"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retorna lista de clientes', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(Array.isArray(res.data)).to.be.true; pm.expect(res.total).to.be.above(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Clientes - Criar Cliente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tradeName\": \"Clínica São Paulo (Newman)\",\n  \"corporateName\": \"Clinica SP Diagnósticos Ltda\",\n  \"cnpj\": \"99.888.777/0001-11\",\n  \"city\": \"São Paulo\",\n  \"state\": \"SP\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/clientes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "clientes"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Cliente criado com ID', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.data.id).to.be.ok; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Impressoras - Listar Parque",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/impressoras",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "impressoras"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retorna equipamentos cadastrados', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.total).to.be.above(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Impressoras - Cadastrar Equipamento",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"HP LaserJet Enterprise M608\",\n  \"serialNumber\": \"SN-NEWMAN-M608\",\n  \"ipAddress\": \"192.168.1.188\",\n  \"location\": \"Ambulatório Newman\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/impressoras",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "impressoras"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Impressora registrada', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.data.serialNumber).to.eql('SN-NEWMAN-M608'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Contadores - Registro e Cálculo de Produção",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"printerId\": \"prt-1\",\n  \"counterTotal\": 152000,\n  \"previousTotal\": 148000,\n  \"source\": \"NEWMAN_TEST\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contadores",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "contadores"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Produção calculada com precisão (152k - 148k = 4k)', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.data.productionTotal).to.eql(4000); pm.expect(res.data.validationStatus).to.eql('NORMAL'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Chamados - Listar Chamados",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/chamados",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "chamados"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retorna chamados de Help Desk', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(Array.isArray(res.data)).to.be.true; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Chamados - Abrir Chamado com SLA",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clientId\": \"cli-1\",\n  \"category\": \"SUPRIMENTO\",\n  \"priority\": \"CRITICA\",\n  \"description\": \"Toner preto esgotado no Centro Cirúrgico\",\n  \"requesterName\": \"Dra. Amanda\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/chamados",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "chamados"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Chamado criado com código e SLA 4h para crítica', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.data.slaHours).to.eql(4); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Ordens de Serviço (OS) - Listar OS",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/os",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "os"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retorna Ordens de Serviço', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.total).to.be.above(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Faturamento - Consultar Faturas do Ciclo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/faturamento?period=2026-09",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "faturamento"],
+          "query": [
+            {
+              "key": "period",
+              "value": "2026-09"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retorna faturas da competência 2026-09', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(Array.isArray(res.data)).to.be.true; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Faturamento - Fechamento Mensal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"periodMonth\": \"2026-09\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/faturamento",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "faturamento"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Processamento de fechamento realizado', function () { var res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.period).to.eql('2026-09'); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

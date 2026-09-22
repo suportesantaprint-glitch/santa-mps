@@ -17,6 +17,7 @@ import {
   BarChart3,
   Database,
   UserCheck,
+  X,
 } from 'lucide-react';
 
 export type NavTab =
@@ -151,44 +152,64 @@ export default function Sidebar({ currentTab, onSelectTab, isOpen, setIsOpen }: 
     },
   ];
 
-  return (
-    <aside className="w-64 flex-shrink-0 border-r border-slate-200 bg-slate-50/60 p-3">
-      <div className="mb-2 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-        Navegação Operacional
+  const handleItemClick = (tabId: NavTab) => {
+    onSelectTab(tabId);
+    if (setIsOpen) {
+      setIsOpen(false);
+    }
+  };
+
+  const navContent = (
+    <div className="flex h-full flex-col justify-between p-3">
+      <div>
+        <div className="flex items-center justify-between px-3 py-1 mb-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            Navegação Operacional
+          </span>
+          {isOpen && setIsOpen && (
+            <button
+              onClick={() => setIsOpen(false)}
+              className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 lg:hidden"
+              aria-label="Fechar menu"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <nav className="space-y-1">
+          {menuItems
+            .filter((item) => !item.hiddenForRoles?.includes(currentUser.role))
+            .map((item) => {
+              const Icon = item.icon;
+              const isActive = currentTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleItemClick(item.id)}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-700 hover:bg-slate-200/70 hover:text-slate-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        isActive ? 'bg-white/20 text-white' : item.badgeColor
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+        </nav>
       </div>
-      <nav className="space-y-1">
-        {menuItems
-          .filter((item) => !item.hiddenForRoles?.includes(currentUser.role))
-          .map((item) => {
-            const Icon = item.icon;
-            const isActive = currentTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onSelectTab(item.id)}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-700 hover:bg-slate-200/70 hover:text-slate-900'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Icon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      isActive ? 'bg-white/20 text-white' : item.badgeColor
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-      </nav>
 
       {/* Status Bar at Bottom */}
       <div className="mt-8 rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
@@ -200,6 +221,30 @@ export default function Sidebar({ currentTab, onSelectTab, isOpen, setIsOpen }: 
           PrintControl Agent v2.4.1 conectado via HTTPS/SNMP.
         </p>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden w-64 flex-shrink-0 border-r border-slate-200 bg-slate-50/60 lg:block">
+        {navContent}
+      </aside>
+
+      {/* Mobile Drawer with Backdrop */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          {/* Backdrop overlay */}
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsOpen?.(false)}
+          />
+          {/* Drawer panel */}
+          <div className="relative z-10 flex w-72 flex-col bg-slate-50 shadow-2xl">
+            {navContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -29,6 +29,7 @@ export default function ClientPortalView() {
   const [ticketDescription, setTicketDescription] = useState('');
   const [ticketCategory, setTicketCategory] = useState<'SUPRIMENTO' | 'DEFEITO'>('SUPRIMENTO');
   const [ticketFeedback, setTicketFeedback] = useState<string | null>(null);
+  const [quickNotification, setQuickNotification] = useState<string | null>(null);
 
   const handleOpenTicket = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +64,10 @@ export default function ClientPortalView() {
       description: `Solicitação emergencial de toner para a impressora ${printerModel} (${printerCode}).`,
       origin: 'CLIENTE',
     });
-    alert(`Solicitação de toner registrada com sucesso para o equipamento ${printerCode}!`);
+    setQuickNotification(`Solicitação de toner registrada com sucesso para o equipamento ${printerCode}!`);
+    setTimeout(() => {
+      setQuickNotification(null);
+    }, 4000);
   };
 
   return (
@@ -88,6 +92,22 @@ export default function ClientPortalView() {
           </button>
         </div>
       </div>
+
+      {/* Quick Notification Toast */}
+      {quickNotification && (
+        <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-900 shadow-sm animate-fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+            <span className="font-semibold">{quickNotification}</span>
+          </div>
+          <button
+            onClick={() => setQuickNotification(null)}
+            className="text-emerald-700 hover:text-emerald-950 font-bold ml-3"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Fleet Overview Grid */}
       <div>

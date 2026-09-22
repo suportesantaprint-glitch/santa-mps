@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function ContractsView() {
-  const { contracts, clients, printers, addContract } = useSantaStore();
+  const { contracts, clients, printers, addContract, searchQuery } = useSantaStore();
 
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<string>('ALL');
@@ -44,9 +44,9 @@ export default function ContractsView() {
 
   const filteredContracts = contracts.filter((c) => {
     if (filterType !== 'ALL' && c.type !== filterType) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      return c.code.toLowerCase().includes(q) || c.clientName.toLowerCase().includes(q);
+    const term = (search.trim() || searchQuery.trim()).toLowerCase();
+    if (term) {
+      return c.code.toLowerCase().includes(term) || c.clientName.toLowerCase().includes(term);
     }
     return true;
   });

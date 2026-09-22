@@ -28,6 +28,7 @@ export default function TicketsView({ onNavigate }: { onNavigate?: (tab: NavTab)
     addTicket,
     updateTicketStatus,
     createOSFromTicket,
+    searchQuery,
   } = useSantaStore();
 
   const [search, setSearch] = useState('');
@@ -53,13 +54,13 @@ export default function TicketsView({ onNavigate }: { onNavigate?: (tab: NavTab)
   const filteredTickets = tickets.filter((t) => {
     if (filterStatus !== 'ALL' && t.status !== filterStatus) return false;
     if (filterPriority !== 'ALL' && t.priority !== filterPriority) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    const term = (search.trim() || searchQuery.trim()).toLowerCase();
+    if (term) {
       return (
-        t.code.toLowerCase().includes(q) ||
-        t.clientName.toLowerCase().includes(q) ||
-        t.description.toLowerCase().includes(q) ||
-        t.requesterName.toLowerCase().includes(q)
+        t.code.toLowerCase().includes(term) ||
+        t.clientName.toLowerCase().includes(term) ||
+        t.description.toLowerCase().includes(term) ||
+        t.requesterName.toLowerCase().includes(term)
       );
     }
     return true;

@@ -15,6 +15,7 @@ import {
   UserCheck,
   AlertTriangle,
   CheckCircle2,
+  Menu,
 } from 'lucide-react';
 
 const ROLES: { role: UserRole; label: string; desc: string }[] = [
@@ -60,8 +61,18 @@ export default function Header({ onOpenMobileMenu, onNavigateAlerts }: HeaderPro
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
-      {/* Brand & Context */}
+      {/* Mobile menu trigger & Brand & Context */}
       <div className="flex items-center gap-3">
+        {onOpenMobileMenu && (
+          <button
+            type="button"
+            onClick={onOpenMobileMenu}
+            aria-label="Abrir menu de navegação"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-sm">
           <Printer className="h-5 w-5" />
         </div>
@@ -167,6 +178,19 @@ export default function Header({ onOpenMobileMenu, onNavigateAlerts }: HeaderPro
                   ))
                 )}
               </div>
+              {onNavigateAlerts && (
+                <div className="mt-3 border-t border-slate-100 pt-2 text-center">
+                  <button
+                    onClick={() => {
+                      setShowAlertsMenu(false);
+                      onNavigateAlerts();
+                    }}
+                    className="w-full rounded-lg bg-slate-50 py-1.5 text-center text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                  >
+                    Abrir Central de Alertas Completa →
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

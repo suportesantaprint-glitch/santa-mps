@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export default function ClientsView() {
-  const { clients, printers, contracts, addClient, updateClient } = useSantaStore();
+  const { clients, printers, contracts, addClient, updateClient, searchQuery } = useSantaStore();
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -43,13 +43,13 @@ export default function ClientsView() {
   });
 
   const filteredClients = clients.filter((c) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
+    const term = (search.trim() || searchQuery.trim()).toLowerCase();
+    if (!term) return true;
     return (
-      c.tradeName.toLowerCase().includes(q) ||
-      c.corporateName.toLowerCase().includes(q) ||
-      c.cnpj.includes(q) ||
-      c.city.toLowerCase().includes(q)
+      c.tradeName.toLowerCase().includes(term) ||
+      c.corporateName.toLowerCase().includes(term) ||
+      c.cnpj.includes(term) ||
+      c.city.toLowerCase().includes(term)
     );
   });
 

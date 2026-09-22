@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/unit/*.test.mjs",
+    "test:newman": "node tests/newman/run-newman.mjs",
     "e2e": "node tests/e2e/e2e-suite.mjs",
     "clean": "next clean"
   },

@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 export default function PrintersView() {
-  const { printers, clients, registerMeterReading, simulateAgentCollection, addPrinter } = useSantaStore();
+  const { printers, clients, registerMeterReading, simulateAgentCollection, addPrinter, searchQuery } = useSantaStore();
 
   const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
   const [filterClient, setFilterClient] = useState<string>('ALL');
@@ -70,14 +70,14 @@ export default function PrintersView() {
     if (filterClient !== 'ALL' && p.clientId !== filterClient) return false;
     if (filterStatus !== 'ALL' && p.status !== filterStatus) return false;
     if (filterTech !== 'ALL' && p.technology !== filterTech) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    const term = (search.trim() || searchQuery.trim()).toLowerCase();
+    if (term) {
       return (
-        p.code.toLowerCase().includes(q) ||
-        p.model.toLowerCase().includes(q) ||
-        p.serialNumber.toLowerCase().includes(q) ||
-        p.ipAddress.toLowerCase().includes(q) ||
-        p.location.toLowerCase().includes(q)
+        p.code.toLowerCase().includes(term) ||
+        p.model.toLowerCase().includes(term) ||
+        p.serialNumber.toLowerCase().includes(term) ||
+        p.ipAddress.toLowerCase().includes(term) ||
+        p.location.toLowerCase().includes(term)
       );
     }
     return true;

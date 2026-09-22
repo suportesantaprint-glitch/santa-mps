@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export default function ServiceOrdersView() {
-  const { serviceOrders, inventory, completeServiceOrder, updateServiceOrder } = useSantaStore();
+  const { serviceOrders, inventory, completeServiceOrder, updateServiceOrder, searchQuery } = useSantaStore();
 
   const [search, setSearch] = useState('');
   const [selectedOS, setSelectedOS] = useState<ServiceOrder | null>(null);
@@ -32,13 +32,13 @@ export default function ServiceOrdersView() {
   const [checklist, setChecklist] = useState<Array<{ task: string; done: boolean }>>([]);
 
   const filteredOS = serviceOrders.filter((os) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
+    const term = (search.trim() || searchQuery.trim()).toLowerCase();
+    if (!term) return true;
     return (
-      os.code.toLowerCase().includes(q) ||
-      os.clientName.toLowerCase().includes(q) ||
-      os.technicianName.toLowerCase().includes(q) ||
-      os.printerModel.toLowerCase().includes(q)
+      os.code.toLowerCase().includes(term) ||
+      os.clientName.toLowerCase().includes(term) ||
+      os.technicianName.toLowerCase().includes(term) ||
+      os.printerModel.toLowerCase().includes(term)
     );
   });
 

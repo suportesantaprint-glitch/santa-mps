@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export default function SuppliesInventoryView() {
-  const { inventory, movements, registerStockMovement, addInventoryItem } = useSantaStore();
+  const { inventory, movements, registerStockMovement, addInventoryItem, searchQuery } = useSantaStore();
 
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
@@ -51,12 +51,12 @@ export default function SuppliesInventoryView() {
 
   const filteredInventory = inventory.filter((item) => {
     if (filterCategory !== 'ALL' && item.category !== filterCategory) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    const term = (search.trim() || searchQuery.trim()).toLowerCase();
+    if (term) {
       return (
-        item.sku.toLowerCase().includes(q) ||
-        item.description.toLowerCase().includes(q) ||
-        item.manufacturer.toLowerCase().includes(q)
+        item.sku.toLowerCase().includes(term) ||
+        item.description.toLowerCase().includes(term) ||
+        item.manufacturer.toLowerCase().includes(term)
       );
     }
     return true;
