@@ -73,8 +73,10 @@ jobs:
         env:
           CI: true
 
-      - name: Remove generated lockfile
-        run: rm -f package-lock.json
+      - name: Remove generated artifacts
+        run: |
+          rm -f package-lock.json
+          rm -f *.tsbuildinfo
 
       - name: Check Git diff
         run: git diff --exit-code
